@@ -2,10 +2,15 @@
 
 # Storyline: Create peer VPN configuration file
 
-
-# What is the user / peer's name
-echo -n "What is the peer's name? "
-read the_client
+# If we call the script and add a name after  the command, it will be assigned to the variable of $1. This checks that they didn't do that.
+if [[ $1 == ""	]]
+then
+	# What is the user / peer's name
+	echo -n "What is the peer's name? "
+	read the_client
+else
+	the_client="$1"
+fi
 
 # Filename variable
 pFile="${the_client}-wg0.conf"
@@ -60,12 +65,17 @@ keep="$(head -1 wg0.conf | awk ' { print $7 } ')"
 # ListeningPort
 lport="$(shuf -n1 -i 40000-50000)"
 
+# Check if the IP based on the network:
+	# Generate IP address
+tempIP=$(grep AllowedIPs wg0.conf | sort -u| tail -1| cut -d\. -f4 | cut -d\/ -f1)
+ip=$(expr ${tempIP} + 1)
+
 # Default routes for VPN
 routes="$(head -1 wg0.conf | awk ' { print $8 } ')"
 
 # Create Client Configuration File
 echo "[Interface]
-Address = 10.254.132.100/24
+Address = 10.254.132.${ip}/24
 DNS = ${dns}
 ListenPort = ${lport}
 MTU = ${mtu}
@@ -86,6 +96,6 @@ echo "
 [Peer]
 PublicKey = ${clientPub}
 PresharedKey = ${pre}
-AllowedIPs = 10.254.132.100/32
+AllowedIPs = 10.254.132.${ip}/32
 # ${the_client} end" | tee -a wg0.conf
 
