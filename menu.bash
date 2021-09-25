@@ -106,6 +106,10 @@ function security_menu {
 	echo "[C]heck for Users with UID of 0 Besides Root"
 	echo "[N]ame Last 10 Users Logged in"
 	echo "[S]ee Currently Logged in Users"
+	echo "[1] Cisco Blocklist Generator"
+	echo "[2] Domain URL Blocklist Generator"
+	echo "[3] Netscreen Blocklist Generator"
+	echo "[4] Windows Blocklist Generator"
 	echo "[M]ain Menu"
 	echo "[E]xit"
 	read -p "Please select an option: " choice
@@ -124,6 +128,22 @@ function security_menu {
 		N|n) last -10 | less
 		;;
 		S|s) w | less
+		;;
+		1) 
+			bash parse-threat.bash -c 
+			sleep 5
+		;;
+		2) 
+			bash parse-threat.bash -p
+			sleep 5
+		;;
+		3) 
+			bash parse-threat.bash -n 
+			sleep 5
+		;;
+		4) 
+			bash parse-threat.bash -f 
+			sleep 5
 		;;
 		M|m) menu
 		;;
