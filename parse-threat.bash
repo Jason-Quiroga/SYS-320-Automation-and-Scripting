@@ -1,4 +1,5 @@
 #!/bin/bash
+# Jason Quiroga
 
 # Storyline: Extract IPs from emergingthreats.net and create a firewall ruleset
 
