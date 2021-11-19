@@ -26,6 +26,7 @@ function main() {
         getApplicationEventLogs
     # Zip the File
         zipFile
+        scpZipFile
     
     write-host "Toolkit Finished! Files located at $destinationLocation"
 }
@@ -102,5 +103,26 @@ function zipFile() { # Zip the file
     Compress-Archive -Path $saveLocation -DestinationPath $destinationLocation"\ToolkitResults.zip"
     $zipFileHash = Get-Filehash $destinationLocation"\ToolkitResults.zip" | select Hash
     "Hash of the Zip File:   $zipFileHash" >> $destinationLocation"\zipFilehash.txt"
+}
+function scpZipFile () {
+    Set-SCPItem -ComputerName '192.168.4.50' -Credential (Get-Credential jason.quiroga@cyber.local) `
+    -Destination '/home/jason.quiroga@cyber.local' -Path $destinationLocation'\ToolkitResults.zip'
+    checkFileUpload
+}
+function checkFileUpload() {
+    # Start the SSH Session
+    New-SSHSession -ComputerName '192.168.4.50' -Credential (Get-Credential jason.quiroga@cyber.local)
+
+    # See if the file is there, if not then don't assign anything to $fileIsThere
+    $fileIsThere = Invoke-SSHCommand -index 0 'ls -l' | Select-String -Pattern "ToolkitResults.zip"
+
+    # If $fileIsThere is empty, then tell the user that the file was not successfully saved. If the variable
+    # is not empty then tell the user that the file was successfully placed on the web server.
+    if ($fileIsThere -is "") {
+        write-host -backgroundColor red -foregroundColor white "The file was not successfully placed on the web server."
+    } else {
+        write-host -backgroundColor green -foregroundColor white "The file was successfully placed on the web server."
+    }
+    Remove-SSHSession -index 0
 }
 main
